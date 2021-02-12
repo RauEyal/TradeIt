@@ -1,0 +1,18 @@
+{
+  "name": "tradeit",
+  "version": "1.0.0",
+  "description": "Auto Trading",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "server": "node server"
+  },
+  "author": "Johnny",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^3.3.3",
+    "express": "^4.17.1",
+    "node-telegram-bot-api": "^0.51.0",
+    "request": "^2.88.2"
+  }
+}
