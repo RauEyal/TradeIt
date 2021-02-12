@@ -8,11 +8,11 @@ const chatId = '-591780130';
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
 
-router.get('/:message', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    bot.sendMessage(chatId, req.params.message);
-
-    return res.status(200).json(req.params.message);
+    bot.sendMessage(chatId, req.body.message);
+    console.log(req.body.message);
+    return res.status(200).json(req.body.message);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
