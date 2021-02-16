@@ -21,6 +21,19 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.post('/anyalert', async (req, res) => {
+  try {
+    console.log(`anyAlert: ${JSON.stringify(req.body)}`);
+    bot.sendMessage(chatId, `anyAlert: ${JSON.stringify(req.body)}`);
+
+    return res.status(200).json('any alert message');
+  } catch (err) {
+    console.error(err.message);
+    bot.sendMessage(chatId, `ERROR: ${err.message}`);
+    res.status(500).send('Server error');
+  }
+});
+
 // bot.onText(/\/echo (.+)/, (msg, match) => {
 //     // 'msg' is the received Message from Telegram
 //     // 'match' is the result of executing the regexp above on the text content
