@@ -11,11 +11,6 @@ const bot = new TelegramBot(token, { polling: true });
 router.post('/', async (req, res) => {
   try {
     console.log(req.body.message);
-    console.log(JSON.stringify(req.body));
-    bot.sendMessage(
-      chatId,
-      `DEBUG: printing message: ${JSON.stringify(req.body)}`
-    );
     bot.sendMessage(chatId, req.body.message);
 
     return res.status(200).json(req.body.message);
