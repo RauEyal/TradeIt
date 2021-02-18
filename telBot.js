@@ -4,14 +4,19 @@ const router = express.Router();
 // replace the value below with the Telegram token you receive from @BotFather
 const token = '1623319416:AAFPB5DMCp6wKarJj05c9rnjjQTjWP_fxmk';
 const chatId = '-591780130';
+const actions = ['SELL', 'STRONG-SELL', 'BUY', 'BUY-STRONG'];
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
 
 router.post('/', async (req, res) => {
   try {
-    console.log(req.body.message);
-    bot.sendMessage(chatId, req.body.message);
+    var symbol = req.body.symbol;
+    var actionArray = JSON.parse('[' + req.body.action + ']');
+    console.log(`symbol: ${symbol}, action:${actionArray}`);
+    var actionType = actions[GetActionNumber(actionArray)];
+
+    bot.sendMessage(chatId, `${symbol} - ${actionType}`);
 
     return res.status(200).json(req.body.message);
   } catch (err) {
@@ -33,6 +38,17 @@ router.post('/anyalert', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+function GetActionNumber(actionArray) {
+  for (let i = 0; i < actionArray.length; i++) {
+    const element = actionArray[i];
+    if (element == 1) {
+      return i;
+    }
+  }
+
+  return -1;
+}
 
 // bot.onText(/\/echo (.+)/, (msg, match) => {
 //     // 'msg' is the received Message from Telegram
