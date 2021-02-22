@@ -11,14 +11,15 @@ const bot = new TelegramBot(token, { polling: true });
 
 router.post('/', async (req, res) => {
   try {
-    var symbol = req.body.symbol;
-    var actionArray = JSON.parse('[' + req.body.action + ']');
+    var data = req.body;
+    var symbol = data.symbol;
+    var actionArray = JSON.parse('[' + data.action + ']');
     console.log(`symbol: ${symbol}, action:${actionArray}`);
     var actionType = actions[GetActionNumber(actionArray)];
 
-    bot.sendMessage(chatId, `${symbol} - ${actionType}`);
+    bot.sendMessage(chatId, `${symbol} - ${actionType} = ${data.price}$`);
 
-    return res.status(200).json(req.body.message);
+    return res.status(200).json(data.message);
   } catch (err) {
     console.error(err.message);
     bot.sendMessage(chatId, `ERROR: ${err.message}`);
