@@ -1,10 +1,11 @@
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 const router = express.Router();
+const Order = require('./models/Order');
 // replace the value below with the Telegram token you receive from @BotFather
 const token = '1623319416:AAFPB5DMCp6wKarJj05c9rnjjQTjWP_fxmk';
 const chatId = '-591780130';
-const actions = ['SELL', 'STRONG-SELL', 'BUY', 'BUY-STRONG'];
+const actions = ['SELL', 'STRONG-SELL', 'BUY', 'STRONG-BUY'];
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
@@ -19,6 +20,13 @@ router.post('/', async (req, res) => {
 
     bot.sendMessage(chatId, `${symbol} - ${actionType} = ${data.price}$`);
 
+    let orderData = new Order({
+      symbol: symbol,
+      action: actionType,
+      price: data.price,
+    });
+
+    orderData.save();
     return res.status(200).json(data.message);
   } catch (err) {
     console.error(err.message);

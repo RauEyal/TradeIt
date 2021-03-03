@@ -10,10 +10,12 @@
   "author": "Johnny",
   "license": "ISC",
   "dependencies": {
-    "config": "^3.3.3",
+    "config": "^3.3.4",
     "express": "^4.17.1",
+    "mongoose": "^5.11.18",
     "node-telegram-bot-api": "^0.51.0",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "xlsx": "^0.16.9"
   },
   "engines": {
     "node": "12.x"
