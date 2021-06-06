@@ -72,10 +72,10 @@ function GetActionNumber(actionArray) {
 async function GetAccessToken() {
   const data = {
     grant_type: 'refresh_token',
-    client_id: API_KEY,
-    refresh_token: REFRESH_TOKEN,
+    client_id: client_id,
+    refresh_token: refreshToken,
     response_type: 'token',
-    client_secret: SECRET,
+    client_secret: secret,
   };
 
   const headers = {
