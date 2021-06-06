@@ -11,24 +11,22 @@ const actions = ['BUY', 'STRONG-BUY', 'SELL', 'STRONG-SELL'];
 secret = process.env.SECRET;
 client_id = process.env.API_KEY;
 refreshToken = process.env.REFRESH_TOKEN;
-
 // Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, { polling: true });
+// const bot = new TelegramBot(token, { polling: true });
 
 router.post('/', async (req, res) => {
   try {
+    console.log('got here');
     var data = req.body;
     var symbol = data.symbol;
     var actionArray = JSON.parse('[' + data.action + ']');
     console.log(`symbol: ${symbol}, action:${actionArray}`);
     var actionType = actions[GetActionNumber(actionArray)];
-    const tokenResp = await GetAccessToken();
-    const token = tokenResp.access_token;
 
-    bot.sendMessage(
-      chatId,
-      `${symbol} - ${actionType} = ${data.price}$ \n ${token}`
-    );
+    // bot.sendMessage(
+    //   chatId,
+    //   `${symbol} - ${actionType} = ${data.price}$ \n ${token}`
+    // );
 
     let orderData = new Order({
       symbol: symbol,
@@ -36,11 +34,11 @@ router.post('/', async (req, res) => {
       price: data.price,
     });
 
-    orderData.save();
+    // orderData.save();
     return res.status(200).json(data.message);
   } catch (err) {
     console.error(err.message);
-    bot.sendMessage(chatId, `ERROR: ${err.message}`);
+    // bot.sendMessage(chatId, `ERROR: ${err.message}`);
     res.status(500).send('Server error');
   }
 });
@@ -48,12 +46,14 @@ router.post('/', async (req, res) => {
 router.post('/anyalert', async (req, res) => {
   try {
     console.log(`anyAlert: ${JSON.stringify(req.body)}`);
-    bot.sendMessage(chatId, req.body.message);
+    //bot.sendMessage(chatId, req.body.message);
+    const tokenResp = await GetAccessToken();
+    const token = tokenResp.access_token;
 
     return res.status(200).json('any alert message');
   } catch (err) {
-    console.error(err.message);
-    bot.sendMessage(chatId, `ERROR: ${err.message}`);
+    console.error(err.response);
+    //bot.sendMessage(chatId, `ERROR: ${err.message}`);
     res.status(500).send('Server error');
   }
 });
@@ -85,9 +85,7 @@ async function GetAccessToken() {
   return axios.post(
     'https://api.tradestation.com/v2/Security/Authorize',
     data,
-    {
-      headers,
-    }
+    { headers }
   );
 }
 
