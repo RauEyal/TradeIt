@@ -9,11 +9,14 @@ const Order = require('./models/Order');
 const token = '1623319416:AAFPB5DMCp6wKarJj05c9rnjjQTjWP_fxmk';
 const chatId = '-591780130';
 const actions = ['BUY', 'STRONG-BUY', 'SELL', 'STRONG-SELL'];
+const accountKey = '15788206';
+const symbolToTrade = ['HOV','BB'];
 let submitResp;
 let accessToken = '';
 secret = process.env.SECRET;
 client_id = process.env.API_KEY;
 refreshToken = process.env.REFRESH_TOKEN;
+
 // Create a bot that uses 'polling' to fetch new updates
  const bot = new TelegramBot(token, { polling: true });
 
@@ -24,35 +27,53 @@ router.post('/', async (req, res) => {
     var actionArray = JSON.parse('[' + data.action + ']');
     console.log(`symbol: ${symbol}, action:${actionArray}`);
     var actionType = actions[GetActionNumber(actionArray)];
-
+    
     bot.sendMessage(
       chatId,
       `${symbol} - ${actionType} = ${data.price}$`
     );
 
-    // if (!accessToken) {
-    //   await ReallyGetToken();
-    // }
+    if (symbolToTrade.includes(symbol) && data.alertType.toLowerCase() == 'lux'){
+      ReallyGetToken();
+      let position = await GetPositionBySymbol(symbol);
+      if ((actionType == actions[0] || actionType == actions[1])){
+        if (position != null){
+          return;
+        }
+
+        var res = SubmitOrder(symbol, 'BUY', 10);
+        bot.sendMessage(
+          chatId,
+          `$Open new position: ${symbol} - ${actionType} - Quantity = 10`
+        );
+      }
+      else{
+        if (position == null){
+          return;
+        }
+        
+        var res = SubmitOrder(symbol, 'SELL', position.quantity);
+        bot.sendMessage(
+          chatId,
+          `$Closing position: ${symbol} - ${actionType} - Quantity = ${position.Quantity}`
+        );
+      }
+    }   
+
 
     // submitResp = await SubmitOrder();
    
 
-    let orderData = new Order({
-      symbol: symbol,
-      action: actionType,
-      price: data.price,
-    });
+    // let orderData = new Order({
+    //   symbol: symbol,
+    //   action: actionType,
+    //   price: data.price,
+    // });
 
-    orderData.save();
+    // orderData.save();
     return res.status(200).json(data.message);
   } catch (err) {
     console.error(err.message);
-
-    // if (err.status === 401) {
-    //   await ReallyGetToken();
-
-    //   submitResp = await SubmitOrder();
-    // }
      bot.sendMessage(chatId, `ERROR: ${err.message}`);
     res.status(500).send('Server error');
   }
@@ -64,7 +85,6 @@ router.post('/anyalert', async (req, res) => {
     bot.sendMessage(chatId, req.body.message);
 
     // const userResp = await GetUserAccounts();
-    console.log( submitResp.data );
     return res.status(200).json('any alert message');
   } catch (err) {
     console.error(err);
@@ -106,17 +126,40 @@ async function GetUserAccounts() {
   });
 }
 
+async function GetPositions() {
+  console.log('fetching positions')
+  const url = 'https://api.tradestation.com/v2/accounts/15788206/positions';
 
-async function SubmitOrder() {
-  console.log('submitting...', accessToken);
+  let headers = {
+    'content-type': 'application/json',
+    "Authorization": `bearer ${accessToken}`,
+  };
+
+  return axios({
+    url,
+    method: 'get',
+    data: {},
+    headers,
+  });
+}
+
+async function GetPositionBySymbol(symbol){
+  var positions = await GetPositions();
+  console.log("fetching positions: " + positions);
+  var position = positions.find(d => d.symbol === symbol);
+  return position;
+}
+
+async function SubmitOrder(symbol, orderAction, quantity) {
+  console.log('submitting order...');
   const data = {
     AccountKey: '15788206',
     AssetType: 'EQ',
     Duration: 'DAY',
     OrderType: 'Market',
-    Quantity: '10',
-    Symbol: 'SNAP',
-    TradeAction: 'BUY',
+    Quantity: quantity,
+    Symbol: symbol,
+    TradeAction: orderAction,
     OSOs: [
       {
         Type: 'NORMAL',
